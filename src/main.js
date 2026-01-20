@@ -141,7 +141,7 @@ function getTotalsByYear(directory) {
   const reimbursementsByYear = {};
   const receiptCounts = {};
   const invalidFiles = [];
-  const expensesByPerson = {}; // { year: { person: { expenses: number, reimbursements: number, count: number } } }
+  const expensesByCategory = {}; // { year: { category: { expenses: number, reimbursements: number, count: number } } }
 
   let fileNames;
   try {
@@ -163,8 +163,8 @@ function getTotalsByYear(directory) {
       continue;
     }
 
-    // Extract just the first word as the person name
-    const person = description.trim().split(' ')[0].toLowerCase();
+    // Extract just the first word as the category name
+    const category = description.trim().split(' ')[0].toLowerCase();
 
     if (amount > 0) {
       // Initialize year data if not exists
@@ -172,24 +172,24 @@ function getTotalsByYear(directory) {
         expensesByYear[year] = 0;
         reimbursementsByYear[year] = 0;
         receiptCounts[year] = 0;
-        expensesByPerson[year] = {};
+        expensesByCategory[year] = {};
       }
 
-      // Initialize person data if not exists for this year
-      if (!expensesByPerson[year][person]) {
-        expensesByPerson[year][person] = { expenses: 0, reimbursements: 0, count: 0 };
+      // Initialize category data if not exists for this year
+      if (!expensesByCategory[year][category]) {
+        expensesByCategory[year][category] = { expenses: 0, reimbursements: 0, count: 0 };
       }
 
       // Always count as an expense regardless of reimbursement status
       expensesByYear[year] = +(expensesByYear[year] + amount).toFixed(2);
-      expensesByPerson[year][person].expenses = +(expensesByPerson[year][person].expenses + amount).toFixed(2);
-      expensesByPerson[year][person].count++;
+      expensesByCategory[year][category].expenses = +(expensesByCategory[year][category].expenses + amount).toFixed(2);
+      expensesByCategory[year][category].count++;
 
       // Additionally track as reimbursement if applicable
       if (isReimbursement) {
         reimbursementsByYear[year] = +(reimbursementsByYear[year] + amount).toFixed(2);
-        expensesByPerson[year][person].reimbursements = +(
-          expensesByPerson[year][person].reimbursements + amount
+        expensesByCategory[year][category].reimbursements = +(
+          expensesByCategory[year][category].reimbursements + amount
         ).toFixed(2);
       }
 
@@ -197,7 +197,7 @@ function getTotalsByYear(directory) {
     }
   }
 
-  return { expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByPerson };
+  return { expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByCategory };
 }
 
 function calculateSummaryStats(years, expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles) {
@@ -256,7 +256,7 @@ function calculateSummaryStats(years, expensesByYear, reimbursementsByYear, rece
   };
 }
 
-function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts, expensesByPerson = {}) {
+function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts, expensesByCategory = {}) {
   const result = {};
   let totalExpenses = 0;
   let totalReimbursements = 0;
@@ -277,20 +277,20 @@ function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, re
       receipts: yearReceipts
     };
 
-    // Add person breakdown if available
-    if (expensesByPerson[year]) {
-      const byPerson = {};
+    // Add category breakdown if available
+    if (expensesByCategory[year]) {
+      const byCategory = {};
       // Sort by expenses descending
-      const sortedPersons = Object.entries(expensesByPerson[year]).sort((a, b) => b[1].expenses - a[1].expenses);
+      const sortedCategories = Object.entries(expensesByCategory[year]).sort((a, b) => b[1].expenses - a[1].expenses);
 
-      for (const [person, data] of sortedPersons) {
-        byPerson[person] = {
+      for (const [category, data] of sortedCategories) {
+        byCategory[category] = {
           expenses: `$${data.expenses.toFixed(2)}`,
           reimbursements: `$${data.reimbursements.toFixed(2)}`,
           receipts: data.count
         };
       }
-      result[year].byPerson = byPerson;
+      result[year].byCategory = byCategory;
     }
   }
 
@@ -348,10 +348,10 @@ function main() {
       default: false,
       describe: 'Show only summary statistics'
     })
-    .option('by-person', {
+    .option('by-category', {
       type: 'boolean',
       default: false,
-      describe: 'Show per-person expense breakdown'
+      describe: 'Show expenses grouped by category (e.g., person)'
     })
     .epilogue(
       `Expected file format:
@@ -369,9 +369,9 @@ function main() {
   let reimbursementsByYear;
   let receiptCounts;
   let invalidFiles;
-  let expensesByPerson;
+  let expensesByCategory;
   try {
-    ({ expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByPerson } =
+    ({ expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByCategory } =
       getTotalsByYear(dirPath));
   } catch (error) {
     console.error(colorize(`❌ Error: Cannot access directory`, 'red'));
@@ -416,7 +416,7 @@ function main() {
     expensesByYear,
     reimbursementsByYear,
     receiptCounts,
-    argv['by-person'] ? expensesByPerson : {}
+    argv['by-category'] ? expensesByCategory : {}
   );
 
   // Show data table and charts unless summary-only mode

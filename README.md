@@ -30,7 +30,7 @@ Options:
   -d, --dirPath       The directory path containing receipt files                [string] [required]
       --no-color      Disable colored output                              [boolean] [default: false]
       --summary-only  Show only summary statistics                        [boolean] [default: false]
-      --by-person     Show per-person expense breakdown                   [boolean] [default: false]
+      --by-category   Show expenses grouped by category (e.g., person)    [boolean] [default: false]
   -h, --help          Show help                                                            [boolean]
   -v, --version       Show version number                                                  [boolean]
 
@@ -47,8 +47,8 @@ hsa-expense-analyzer --dirPath="/path/to/your/receipts"
 # Show only summary statistics (no tables or charts)
 hsa-expense-analyzer --dirPath="/path/to/your/receipts" --summary-only
 
-# Show breakdown by person (first word of description)
-hsa-expense-analyzer --dirPath="/path/to/your/receipts" --by-person
+# Show expenses grouped by category (first word of description)
+hsa-expense-analyzer --dirPath="/path/to/your/receipts" --by-category
 
 # Disable colored output for plain text
 hsa-expense-analyzer --dirPath="/path/to/your/receipts" --no-color
@@ -120,7 +120,7 @@ Example file structure:
 > - The amount must start with a `$` and be in format `$XX.XX` (e.g., $50.00, not $50,00 or $50)
 > - Any common file extension for receipts is fine (`.pdf`, `.jpg`, `.heic`, etc.); only the date and $ amount are used for calculations
 > - The tool detects reimbursements by looking for `.reimbursed.` anywhere in the filename
-> - The first word in the description is used as the person/assignee for the per-person breakdown when using `--by-person` (e.g., `bob dentist visit` → `bob`). Use `household` as the first word for shared/family expenses (e.g., `household walgreens bandaids`)
+> - The first word in the description is used as the category when using `--by-category` (e.g., `bob dentist` → `bob`, `household walgreens` → `household`). Categories can be names, care types (e.g., doctor, dentist, vision), or any other grouping you prefer
 
 ## Example Output
 
