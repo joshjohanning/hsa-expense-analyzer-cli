@@ -91,7 +91,13 @@ describe('buildYearlyResultObject', () => {
       }
     };
 
-    const result = buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts, expensesByPerson);
+    const result = buildYearlyResultObject(
+      years,
+      expensesByYear,
+      reimbursementsByYear,
+      receiptCounts,
+      expensesByPerson
+    );
 
     expect(result['2021'].byPerson).toEqual({
       josh: { expenses: '$100.00', reimbursements: '$50.00', receipts: 2 },
@@ -119,7 +125,13 @@ describe('buildYearlyResultObject', () => {
       }
     };
 
-    const result = buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts, expensesByPerson);
+    const result = buildYearlyResultObject(
+      years,
+      expensesByYear,
+      reimbursementsByYear,
+      receiptCounts,
+      expensesByPerson
+    );
 
     const personKeys = Object.keys(result['2021'].byPerson);
     expect(personKeys[0]).toBe('high'); // Highest expenses first
@@ -132,7 +144,13 @@ describe('buildYearlyResultObject', () => {
     const receiptCounts = { 2021: 1 };
     const expensesByPerson = {};
 
-    const result = buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts, expensesByPerson);
+    const result = buildYearlyResultObject(
+      years,
+      expensesByYear,
+      reimbursementsByYear,
+      receiptCounts,
+      expensesByPerson
+    );
 
     expect(result['2021'].byPerson).toBeUndefined();
   });
