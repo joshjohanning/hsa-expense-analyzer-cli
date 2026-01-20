@@ -164,7 +164,7 @@ function getTotalsByYear(directory) {
     }
 
     // Extract just the first word as the person name
-    const person = description.split(' ')[0].toLowerCase();
+    const person = description.trim().split(' ')[0].toLowerCase();
 
     if (amount > 0) {
       // Initialize year data if not exists
