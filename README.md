@@ -120,7 +120,7 @@ Example file structure:
 > - The amount must start with a `$` and be in format `$XX.XX` (e.g., $50.00, not $50,00 or $50)
 > - Any common file extension for receipts is fine (`.pdf`, `.jpg`, `.heic`, etc.); only the date and $ amount are used for calculations
 > - The tool detects reimbursements by looking for `.reimbursed.` anywhere in the filename
-> - The first word in the description is used as the category when using `--by-category` (e.g., `bob dentist` → `bob`, `household walgreens` → `household`). Categories can be names, care types (e.g., doctor, dentist, vision), or any other grouping you prefer
+> - The first word in the description is used as the category when using `--by-category` (e.g., `Bob dentist` → `bob`, `household walgreens` → `household`). Categories can be names, care types (e.g., doctor, dentist, vision), or any other grouping you prefer
 
 ## Example Output
 
