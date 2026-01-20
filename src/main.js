@@ -164,7 +164,7 @@ function getTotalsByYear(directory) {
     }
 
     // Extract just the first word as the category name
-    const category = description.trim().split(' ')[0].toLowerCase();
+    const category = (description.trim().split(' ')[0] || 'uncategorized').toLowerCase();
 
     if (amount > 0) {
       // Initialize year data if not exists
