@@ -351,7 +351,7 @@ function main() {
     .option('by-person', {
       type: 'boolean',
       default: false,
-      describe: 'Show breakdown by person (uses first word of description)'
+      describe: 'Show per-person expense breakdown'
     })
     .epilogue(
       `Expected file format:

@@ -30,8 +30,7 @@ Options:
   -d, --dirPath       The directory path containing receipt files                [string] [required]
       --no-color      Disable colored output                              [boolean] [default: false]
       --summary-only  Show only summary statistics                        [boolean] [default: false]
-      --by-person     Show breakdown by person (uses first word of description)
-                                                                          [boolean] [default: false]
+      --by-person     Show per-person expense breakdown                   [boolean] [default: false]
   -h, --help          Show help                                                            [boolean]
   -v, --version       Show version number                                                  [boolean]
 
