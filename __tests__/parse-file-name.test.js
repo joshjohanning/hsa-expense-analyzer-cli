@@ -5,6 +5,7 @@ describe('parseFileName', () => {
     const result = parseFileName('2021-01-15 - doctor - $50.00.pdf');
     expect(result).toEqual({
       year: '2021',
+      description: 'doctor',
       amount: 50.0,
       isReimbursement: false,
       isValid: true
@@ -15,6 +16,7 @@ describe('parseFileName', () => {
     const result = parseFileName('2021-02-20 - pharmacy - $30.50.reimbursed.pdf');
     expect(result).toEqual({
       year: '2021',
+      description: 'pharmacy',
       amount: 30.5,
       isReimbursement: true,
       isValid: true
@@ -83,6 +85,7 @@ describe('parseFileName', () => {
     const result = parseFileName('2023-05-01 - surgery - $9999.99.pdf');
     expect(result).toEqual({
       year: '2023',
+      description: 'surgery',
       amount: 9999.99,
       isReimbursement: false,
       isValid: true
@@ -93,6 +96,7 @@ describe('parseFileName', () => {
     const result = parseFileName('2022-06-15 - glasses - $250.00.reimbursed.jpg');
     expect(result).toEqual({
       year: '2022',
+      description: 'glasses',
       amount: 250.0,
       isReimbursement: true,
       isValid: true

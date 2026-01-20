@@ -30,6 +30,8 @@ Options:
   -d, --dirPath       The directory path containing receipt files                [string] [required]
       --no-color      Disable colored output                              [boolean] [default: false]
       --summary-only  Show only summary statistics                        [boolean] [default: false]
+      --by-person     Show breakdown by person (uses first word of description)
+                                                                          [boolean] [default: false]
   -h, --help          Show help                                                            [boolean]
   -v, --version       Show version number                                                  [boolean]
 
@@ -45,6 +47,9 @@ hsa-expense-analyzer --dirPath="/path/to/your/receipts"
 
 # Show only summary statistics (no tables or charts)
 hsa-expense-analyzer --dirPath="/path/to/your/receipts" --summary-only
+
+# Show breakdown by person (first word of description)
+hsa-expense-analyzer --dirPath="/path/to/your/receipts" --by-person
 
 # Disable colored output for plain text
 hsa-expense-analyzer --dirPath="/path/to/your/receipts" --no-color
@@ -116,6 +121,7 @@ Example file structure:
 > - The amount must start with a `$` and be in format `$XX.XX` (e.g., $50.00, not $50,00 or $50)
 > - Any common file extension for receipts is fine (`.pdf`, `.jpg`, `.heic`, etc.); only the date and $ amount are used for calculations
 > - The tool detects reimbursements by looking for `.reimbursed.` anywhere in the filename
+> - The **first word** in the description is used as the person/assignee for the per-person breakdown when using `--by-person` (e.g., `Josh dentist visit` → `josh`). Use `household` as the first word for shared/family expenses (e.g., `household walgreens bandaids`)
 
 ## Example Output
 
