@@ -75,4 +75,83 @@ describe('buildYearlyResultObject', () => {
     expect(result['2024'].expenses).toBe('$123.46');
     expect(result['2024'].reimbursements).toBe('$50.10');
   });
+
+  test('should include byCategory breakdown when expensesByCategory is provided', () => {
+    const years = ['2021', '2022'];
+    const expensesByYear = { 2021: 150.0, 2022: 200.0 };
+    const reimbursementsByYear = { 2021: 50.0, 2022: 100.0 };
+    const receiptCounts = { 2021: 3, 2022: 2 };
+    const expensesByCategory = {
+      2021: {
+        josh: { expenses: 100.0, reimbursements: 50.0, count: 2 },
+        household: { expenses: 50.0, reimbursements: 0, count: 1 }
+      },
+      2022: {
+        sage: { expenses: 200.0, reimbursements: 100.0, count: 2 }
+      }
+    };
+
+    const result = buildYearlyResultObject(
+      years,
+      expensesByYear,
+      reimbursementsByYear,
+      receiptCounts,
+      expensesByCategory
+    );
+
+    expect(result['2021'].byCategory).toEqual({
+      josh: { expenses: '$100.00', reimbursements: '$50.00', receipts: 2 },
+      household: { expenses: '$50.00', reimbursements: '$0.00', receipts: 1 }
+    });
+
+    expect(result['2022'].byCategory).toEqual({
+      sage: { expenses: '$200.00', reimbursements: '$100.00', receipts: 2 }
+    });
+
+    // Total should not have byCategory
+    expect(result['Total'].byCategory).toBeUndefined();
+  });
+
+  test('should sort byCategory by expenses descending', () => {
+    const years = ['2021'];
+    const expensesByYear = { 2021: 300.0 };
+    const reimbursementsByYear = { 2021: 0 };
+    const receiptCounts = { 2021: 3 };
+    const expensesByCategory = {
+      2021: {
+        low: { expenses: 50.0, reimbursements: 0, count: 1 },
+        high: { expenses: 200.0, reimbursements: 0, count: 1 },
+        mid: { expenses: 50.0, reimbursements: 0, count: 1 }
+      }
+    };
+
+    const result = buildYearlyResultObject(
+      years,
+      expensesByYear,
+      reimbursementsByYear,
+      receiptCounts,
+      expensesByCategory
+    );
+
+    const categoryKeys = Object.keys(result['2021'].byCategory);
+    expect(categoryKeys[0]).toBe('high'); // Highest expenses first
+  });
+
+  test('should not include byCategory when expensesByCategory is empty', () => {
+    const years = ['2021'];
+    const expensesByYear = { 2021: 100.0 };
+    const reimbursementsByYear = { 2021: 0 };
+    const receiptCounts = { 2021: 1 };
+    const expensesByCategory = {};
+
+    const result = buildYearlyResultObject(
+      years,
+      expensesByYear,
+      reimbursementsByYear,
+      receiptCounts,
+      expensesByCategory
+    );
+
+    expect(result['2021'].byCategory).toBeUndefined();
+  });
 });

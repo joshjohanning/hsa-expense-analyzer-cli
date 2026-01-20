@@ -36,6 +36,7 @@ function parseFileName(fileName) {
   if (parts.length !== 3) {
     return {
       year: null,
+      description: null,
       amount: 0,
       isReimbursement: false,
       isValid: false,
@@ -44,6 +45,7 @@ function parseFileName(fileName) {
   }
 
   const date = parts[0];
+  const description = parts[1];
   const amountPart = parts[2];
 
   // Validate date format (yyyy-mm-dd)
@@ -131,7 +133,7 @@ function parseFileName(fileName) {
   // Check if this is a reimbursement
   const isReimbursement = fileName.includes('.reimbursed.');
 
-  return { year, amount, isReimbursement, isValid: true };
+  return { year, description, amount, isReimbursement, isValid: true };
 }
 
 function getTotalsByYear(directory) {
@@ -139,6 +141,7 @@ function getTotalsByYear(directory) {
   const reimbursementsByYear = {};
   const receiptCounts = {};
   const invalidFiles = [];
+  const expensesByCategory = {}; // { year: { category: { expenses: number, reimbursements: number, count: number } } }
 
   let fileNames;
   try {
@@ -153,12 +156,15 @@ function getTotalsByYear(directory) {
       continue;
     }
 
-    const { year, amount, isReimbursement, isValid, error } = parseFileName(fileName);
+    const { year, description, amount, isReimbursement, isValid, error } = parseFileName(fileName);
 
     if (!isValid) {
       invalidFiles.push({ fileName, error });
       continue;
     }
+
+    // Extract just the first word as the category name
+    const category = (description.trim().split(' ')[0] || 'uncategorized').toLowerCase();
 
     if (amount > 0) {
       // Initialize year data if not exists
@@ -166,21 +172,32 @@ function getTotalsByYear(directory) {
         expensesByYear[year] = 0;
         reimbursementsByYear[year] = 0;
         receiptCounts[year] = 0;
+        expensesByCategory[year] = {};
+      }
+
+      // Initialize category data if not exists for this year
+      if (!expensesByCategory[year][category]) {
+        expensesByCategory[year][category] = { expenses: 0, reimbursements: 0, count: 0 };
       }
 
       // Always count as an expense regardless of reimbursement status
       expensesByYear[year] = +(expensesByYear[year] + amount).toFixed(2);
+      expensesByCategory[year][category].expenses = +(expensesByCategory[year][category].expenses + amount).toFixed(2);
+      expensesByCategory[year][category].count++;
 
       // Additionally track as reimbursement if applicable
       if (isReimbursement) {
         reimbursementsByYear[year] = +(reimbursementsByYear[year] + amount).toFixed(2);
+        expensesByCategory[year][category].reimbursements = +(
+          expensesByCategory[year][category].reimbursements + amount
+        ).toFixed(2);
       }
 
       receiptCounts[year]++;
     }
   }
 
-  return { expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles };
+  return { expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByCategory };
 }
 
 function calculateSummaryStats(years, expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles) {
@@ -239,7 +256,7 @@ function calculateSummaryStats(years, expensesByYear, reimbursementsByYear, rece
   };
 }
 
-function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts) {
+function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts, expensesByCategory = {}) {
   const result = {};
   let totalExpenses = 0;
   let totalReimbursements = 0;
@@ -259,6 +276,22 @@ function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, re
       reimbursements: `$${yearReimbursements.toFixed(2)}`,
       receipts: yearReceipts
     };
+
+    // Add category breakdown if available
+    if (expensesByCategory[year]) {
+      const byCategory = {};
+      // Sort by expenses descending
+      const sortedCategories = Object.entries(expensesByCategory[year]).sort((a, b) => b[1].expenses - a[1].expenses);
+
+      for (const [category, data] of sortedCategories) {
+        byCategory[category] = {
+          expenses: `$${data.expenses.toFixed(2)}`,
+          reimbursements: `$${data.reimbursements.toFixed(2)}`,
+          receipts: data.count
+        };
+      }
+      result[year].byCategory = byCategory;
+    }
   }
 
   result['Total'] = {
@@ -315,6 +348,11 @@ function main() {
       default: false,
       describe: 'Show only summary statistics'
     })
+    .option('by-category', {
+      type: 'boolean',
+      default: false,
+      describe: 'Show expenses grouped by category (e.g., person)'
+    })
     .epilogue(
       `Expected file format:
   <yyyy-mm-dd> - <description> - $<amount>.<ext>
@@ -331,8 +369,10 @@ function main() {
   let reimbursementsByYear;
   let receiptCounts;
   let invalidFiles;
+  let expensesByCategory;
   try {
-    ({ expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles } = getTotalsByYear(dirPath));
+    ({ expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByCategory } =
+      getTotalsByYear(dirPath));
   } catch (error) {
     console.error(colorize(`❌ Error: Cannot access directory`, 'red'));
     console.error(colorize(`   ${error.message.replace('Cannot access directory: ', '')}`, 'dim'));
@@ -371,7 +411,13 @@ function main() {
     console.log();
   }
 
-  const result = buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, receiptCounts);
+  const result = buildYearlyResultObject(
+    years,
+    expensesByYear,
+    reimbursementsByYear,
+    receiptCounts,
+    argv['by-category'] ? expensesByCategory : {}
+  );
 
   // Show data table and charts unless summary-only mode
   if (!argv['summary-only']) {

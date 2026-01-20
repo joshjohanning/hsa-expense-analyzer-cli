@@ -30,6 +30,7 @@ Options:
   -d, --dirPath       The directory path containing receipt files                [string] [required]
       --no-color      Disable colored output                              [boolean] [default: false]
       --summary-only  Show only summary statistics                        [boolean] [default: false]
+      --by-category   Show expenses grouped by category (e.g., person)    [boolean] [default: false]
   -h, --help          Show help                                                            [boolean]
   -v, --version       Show version number                                                  [boolean]
 
@@ -45,6 +46,9 @@ hsa-expense-analyzer --dirPath="/path/to/your/receipts"
 
 # Show only summary statistics (no tables or charts)
 hsa-expense-analyzer --dirPath="/path/to/your/receipts" --summary-only
+
+# Show expenses grouped by category (first word of description)
+hsa-expense-analyzer --dirPath="/path/to/your/receipts" --by-category
 
 # Disable colored output for plain text
 hsa-expense-analyzer --dirPath="/path/to/your/receipts" --no-color
@@ -98,15 +102,15 @@ Example file structure:
 
 ```text
 <dirPath>/
-├── 2021-01-01 - doctor - $45.00.pdf               # Expense
-├── 2021-02-15 - pharmacy - $30.00.reimbursed.pdf  # Reimbursed expense
-├── 2022-02-01 - doctor - $50.00.reimbursed.pdf    # Reimbursed expense
-├── 2022-03-15 - dentist - $150.00.png             # Expense
-├── 2022-11-01 - glasses - $50.00.reimbursed.jpg   # Reimbursed expense
-├── 2023-05-01 - doctor - $45.00.pdf               # Expense
-├── 2023-06-01 - doctor - $55.00.reimbursed.pdf    # Reimbursed expense
-├── 2024-07-15 - doctor - $50.00.pdf               # Expense
-└── 2025-01-15 - doctor - $125.00.pdf              # Expense
+├── 2021-01-01 - bob doctor - $45.00.pdf                # Expense
+├── 2021-02-15 - jane pharmacy - $30.00.reimbursed.pdf  # Reimbursed expense
+├── 2022-02-01 - bob doctor - $50.00.reimbursed.pdf     # Reimbursed expense
+├── 2022-03-15 - household walgreens - $150.00.png      # Expense
+├── 2022-11-01 - jane glasses - $50.00.reimbursed.jpg   # Reimbursed expense
+├── 2023-05-01 - bob doctor - $45.00.pdf                # Expense
+├── 2023-06-01 - jane doctor - $55.00.reimbursed.pdf    # Reimbursed expense
+├── 2024-07-15 - bob dentist - $50.00.pdf               # Expense
+└── 2025-01-15 - household amazon otc - $125.00.pdf     # Expense
 ```
 
 > [!NOTE]
@@ -116,6 +120,7 @@ Example file structure:
 > - The amount must start with a `$` and be in format `$XX.XX` (e.g., $50.00, not $50,00 or $50)
 > - Any common file extension for receipts is fine (`.pdf`, `.jpg`, `.heic`, etc.); only the date and $ amount are used for calculations
 > - The tool detects reimbursements by looking for `.reimbursed.` anywhere in the filename
+> - The first word in the description is used as the category when using `--by-category` (e.g., `Bob dentist` → `bob`, `household walgreens` → `household`). Categories can be names, care types (e.g., doctor, dentist, vision), or any other grouping you prefer
 
 ## Example Output
 

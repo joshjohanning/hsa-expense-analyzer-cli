@@ -95,4 +95,56 @@ describe('getTotalsByYear', () => {
     expect(result.expensesByYear).toBeDefined();
     expect(Object.keys(result.expensesByYear).length).toBeGreaterThan(0);
   });
+
+  test('should use "uncategorized" for empty description category', async () => {
+    const fs = (await import('fs')).default;
+    const os = (await import('os')).default;
+    const path = (await import('path')).default;
+
+    // Create a temp directory with a file that has empty-ish description
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hsa-test-'));
+    const testFile = '2021-01-01 -  - $50.00.pdf'; // Empty description (just spaces)
+    fs.writeFileSync(path.join(tempDir, testFile), '');
+
+    try {
+      const result = getTotalsByYear(tempDir);
+
+      // Should have expensesByCategory with 'uncategorized' key
+      expect(result.expensesByCategory['2021']).toBeDefined();
+      expect(result.expensesByCategory['2021']['uncategorized']).toBeDefined();
+      expect(result.expensesByCategory['2021']['uncategorized'].expenses).toBe(50.0);
+    } finally {
+      // Cleanup
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
+
+  test('should treat categories case-insensitively', async () => {
+    const fs = (await import('fs')).default;
+    const os = (await import('os')).default;
+    const path = (await import('path')).default;
+
+    // Create a temp directory with files that have different casing
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hsa-test-'));
+    fs.writeFileSync(path.join(tempDir, '2021-01-01 - Josh doctor - $50.00.pdf'), '');
+    fs.writeFileSync(path.join(tempDir, '2021-01-02 - josh dentist - $30.00.pdf'), '');
+    fs.writeFileSync(path.join(tempDir, '2021-01-03 - JOSH vision - $20.00.pdf'), '');
+
+    try {
+      const result = getTotalsByYear(tempDir);
+
+      // All should be grouped under 'josh' (lowercase)
+      expect(result.expensesByCategory['2021']).toBeDefined();
+      expect(result.expensesByCategory['2021']['josh']).toBeDefined();
+      expect(result.expensesByCategory['2021']['josh'].expenses).toBe(100.0);
+      expect(result.expensesByCategory['2021']['josh'].count).toBe(3);
+
+      // Should not have separate entries for different casings
+      expect(result.expensesByCategory['2021']['Josh']).toBeUndefined();
+      expect(result.expensesByCategory['2021']['JOSH']).toBeUndefined();
+    } finally {
+      // Cleanup
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
 });
