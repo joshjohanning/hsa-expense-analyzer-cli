@@ -188,7 +188,9 @@ function getTotalsByYear(directory) {
       // Additionally track as reimbursement if applicable
       if (isReimbursement) {
         reimbursementsByYear[year] = +(reimbursementsByYear[year] + amount).toFixed(2);
-        expensesByPerson[year][person].reimbursements = +(expensesByPerson[year][person].reimbursements + amount).toFixed(2);
+        expensesByPerson[year][person].reimbursements = +(
+          expensesByPerson[year][person].reimbursements + amount
+        ).toFixed(2);
       }
 
       receiptCounts[year]++;
@@ -279,8 +281,7 @@ function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, re
     if (expensesByPerson[year]) {
       const byPerson = {};
       // Sort by expenses descending
-      const sortedPersons = Object.entries(expensesByPerson[year])
-        .sort((a, b) => b[1].expenses - a[1].expenses);
+      const sortedPersons = Object.entries(expensesByPerson[year]).sort((a, b) => b[1].expenses - a[1].expenses);
 
       for (const [person, data] of sortedPersons) {
         byPerson[person] = {
@@ -370,7 +371,8 @@ function main() {
   let invalidFiles;
   let expensesByPerson;
   try {
-    ({ expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByPerson } = getTotalsByYear(dirPath));
+    ({ expensesByYear, reimbursementsByYear, receiptCounts, invalidFiles, expensesByPerson } =
+      getTotalsByYear(dirPath));
   } catch (error) {
     console.error(colorize(`❌ Error: Cannot access directory`, 'red'));
     console.error(colorize(`   ${error.message.replace('Cannot access directory: ', '')}`, 'dim'));
