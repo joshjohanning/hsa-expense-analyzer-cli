@@ -102,4 +102,15 @@ describe('parseFileName', () => {
       isValid: true
     });
   });
+
+  test('should reject file with non-numeric amount', () => {
+    const result = parseFileName('2021-01-15 - doctor - $abc.00.pdf');
+    expect(result.isValid).toBe(false);
+    expect(result.error).toContain('should be a valid format');
+  });
+
+  test('should reject file with NaN amount', () => {
+    const result = parseFileName('2021-01-15 - doctor - $NaN.pdf');
+    expect(result.isValid).toBe(false);
+  });
 });

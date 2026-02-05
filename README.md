@@ -31,6 +31,7 @@ Options:
       --no-color      Disable colored output                              [boolean] [default: false]
       --summary-only  Show only summary statistics                        [boolean] [default: false]
       --by-category   Show expenses grouped by category (e.g., person)    [boolean] [default: false]
+      --analyze       🤖 Experimental: Analyze expenses with Copilot AI   [boolean] [default: false]
   -h, --help          Show help                                                            [boolean]
   -v, --version       Show version number                                                  [boolean]
 
@@ -53,6 +54,48 @@ hsa-expense-analyzer --dirPath="/path/to/your/receipts" --by-category
 # Disable colored output for plain text
 hsa-expense-analyzer --dirPath="/path/to/your/receipts" --no-color
 ```
+
+### 🤖 Copilot AI Analysis (Experimental)
+
+Analyze your HSA expenses with AI using the `--analyze` flag. Requires the [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli) to be installed and authenticated.
+
+```bash
+# Launch interactive AI analysis menu
+hsa-expense-analyzer --dirPath="/path/to/receipts" --analyze
+
+# Combine with --summary-only for cleaner output
+hsa-expense-analyzer --dirPath="/path/to/receipts" --summary-only --analyze
+```
+
+**Pre-built analysis options:**
+
+1. **Find largest expenses** - Identify your biggest medical expenses and spending patterns
+2. **Reimbursement strategy** - Get advice on when and how to reimburse yourself
+3. **Year-over-year trends** - Understand how your healthcare spending has changed
+4. **HSA optimization tips** - Get personalized tips to maximize your HSA benefits
+5. **Ask your own question** - Enter chat mode for follow-up conversations
+
+**Chat mode (option 5):**
+When you select "Ask your own question", you enter an interactive chat where you can ask follow-up questions. Copilot remembers the conversation context, so you can have natural conversations like:
+
+```
+You: Find all dental receipts
+Copilot: [shows dental receipts]
+
+You: Which ones aren't reimbursed?
+Copilot: [filters to unreimbursed dental receipts]
+
+You: back  # Returns to main menu
+```
+
+**Available AI tools:**
+
+- `search_receipts` - Search by keyword (e.g., "dental", "pharmacy", person names)
+- `get_largest_expenses` - Find biggest expenses, optionally by year
+- `get_unreimbursed_expenses` - Find expenses you can still reimburse
+- `get_expenses_by_year` - Get detailed breakdown for a specific year
+- `get_receipts_by_category` - Get receipts by person/category
+- `list_categories` - List all expense categories with totals
 
 ## Local Development
 
