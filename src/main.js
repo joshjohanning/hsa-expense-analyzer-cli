@@ -4,9 +4,9 @@ import fs, { readFileSync } from 'fs';
 import prettyjson from 'prettyjson';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import chartscii from 'chartscii';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import chartscii from 'chartscii';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -432,7 +432,7 @@ function main() {
       title: 'Expenses by year',
       fill: '░',
       valueLabels: true,
-      valueLabelsPrefix: '$',
+      valueLabelFormat: (values) => `$${values[0]}`,
       valueLabelsFloatingPoint: 2
     });
 
@@ -442,7 +442,7 @@ function main() {
       title: 'Reimbursements by year',
       fill: '░',
       valueLabels: true,
-      valueLabelsPrefix: '$',
+      valueLabelFormat: (values) => `$${values[0]}`,
       valueLabelsFloatingPoint: 2
     });
 
