@@ -432,7 +432,7 @@ function main() {
       title: 'Expenses by year',
       fill: '░',
       valueLabels: true,
-      valueLabelFormat: (values) => `$${values[0]}`,
+      valueLabelFormat: values => `$${values[0]}`,
       valueLabelsFloatingPoint: 2
     });
 
@@ -442,7 +442,7 @@ function main() {
       title: 'Reimbursements by year',
       fill: '░',
       valueLabels: true,
-      valueLabelFormat: (values) => `$${values[0]}`,
+      valueLabelFormat: values => `$${values[0]}`,
       valueLabelsFloatingPoint: 2
     });
 
