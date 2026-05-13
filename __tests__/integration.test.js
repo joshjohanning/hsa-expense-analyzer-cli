@@ -99,7 +99,5 @@ describe('hsa-expense-analyzer-cli', () => {
 
   test('should display charts (unless summary-only mode)', () => {
     expect(output).toContain('Expenses by year');
-    expect(output).toContain('Reimbursements by year');
-    expect(output).toContain('Expenses vs Reimbursements by year');
   });
 });

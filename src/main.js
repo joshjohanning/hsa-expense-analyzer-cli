@@ -304,25 +304,20 @@ function buildYearlyResultObject(years, expensesByYear, reimbursementsByYear, re
 }
 
 function prepareChartData(years, expensesByYear, reimbursementsByYear) {
-  const expenseData = [];
-  const reimbursementData = [];
+  const stackedData = [];
 
   for (const year of years) {
     const expenseAmount = expensesByYear[year] || 0;
     const reimbursementAmount = reimbursementsByYear[year] || 0;
+    const outstandingAmount = expenseAmount - reimbursementAmount;
 
-    expenseData.push({
+    stackedData.push({
       label: year,
-      value: expenseAmount
-    });
-
-    reimbursementData.push({
-      label: year,
-      value: reimbursementAmount
+      value: [reimbursementAmount, outstandingAmount]
     });
   }
 
-  return { expenseData, reimbursementData };
+  return { stackedData };
 }
 
 // Main CLI execution
@@ -424,52 +419,24 @@ function main() {
     console.log(prettyjson.render(result));
     console.log();
 
-    const { expenseData, reimbursementData } = prepareChartData(years, expensesByYear, reimbursementsByYear);
+    const { stackedData } = prepareChartData(years, expensesByYear, reimbursementsByYear);
 
-    const chart = new chartscii(expenseData, {
+    const chart = new chartscii(stackedData, {
       width: 20,
       height: years.length,
       title: 'Expenses by year',
       fill: '░',
       valueLabels: true,
-      valueLabelFormat: (values) => `$${values[0]}`,
-      valueLabelsFloatingPoint: 2
-    });
-
-    const reimbursementChart = new chartscii(reimbursementData, {
-      width: 20,
-      height: years.length,
-      title: 'Reimbursements by year',
-      fill: '░',
-      valueLabels: true,
-      valueLabelFormat: (values) => `$${values[0]}`,
-      valueLabelsFloatingPoint: 2
+      colorLabels: false,
+      valueLabelFormat: (values) => {
+        const fmt = (v) => v % 1 === 0 ? `$${v}` : `$${v.toFixed(2)}`;
+        const reimbursed = parseFloat(values[0]);
+        const total = values.reduce((sum, v) => sum + parseFloat(v), 0);
+        return `${fmt(total)} (${fmt(reimbursed)} reimbursed)`;
+      }
     });
 
     console.log(chart.create());
-    console.log();
-    console.log(reimbursementChart.create());
-    console.log();
-
-    // Create a manual comparison chart
-    console.log('Expenses vs Reimbursements by year');
-    const maxValue = Math.max(...Object.values(expensesByYear), ...Object.values(reimbursementsByYear));
-
-    for (const year of years) {
-      const expenseAmount = expensesByYear[year] || 0;
-      const reimbursementAmount = reimbursementsByYear[year] || 0;
-
-      const expenseBarLength = Math.floor((expenseAmount / maxValue) * 20);
-      const reimbursementBarLength = Math.floor((reimbursementAmount / maxValue) * 20);
-
-      const expenseBar = '█'.repeat(expenseBarLength) + '░'.repeat(20 - expenseBarLength);
-      const reimbursementBar = '█'.repeat(reimbursementBarLength) + '░'.repeat(20 - reimbursementBarLength);
-
-      console.log(`${year} Expenses       ╢${expenseBar} $${expenseAmount.toFixed(2)}`);
-      console.log(`${year} Reimbursements ╢${reimbursementBar} $${reimbursementAmount.toFixed(2)}`);
-    }
-
-    console.log('                    ╚════════════════════');
     console.log();
   }
 
