@@ -54,7 +54,7 @@
   "dependencies": {
     "chartscii": "4.0.3",
     "prettyjson": "^1.2.5",
-    "yargs": "^18.0.0"
+    "yargs": "^18.1.0"
   },
   "devDependencies": {
     "@joshjohanning/make-coverage-badge-better": "^1.0.1",
